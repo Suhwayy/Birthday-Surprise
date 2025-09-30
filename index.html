@@ -50,7 +50,8 @@
             height: 220px;
             position: relative;
             perspective: 1000px;
-            cursor: pointer
+            cursor: pointer;
+            transform-style: preserve-3d;
         }
 
             .present .box {
@@ -475,19 +476,41 @@
 
         // Instead of the simple reveal above, reuse existing present animation behavior
         // For brevity: clicking present will open, emit confetti and then show app
-        present.addEventListener('click', async () => {
+        present.addEventListener('click', () => {
             present.classList.add('opened');
-            // confetti & fireworks (simple DOM confetti)
-            for (let i = 0; i < 80; i++) {
-                const el = document.createElement('div'); el.style.position = 'fixed'; el.style.left = (50 + (Math.random() - 0.5) * 40) + '%'; el.style.top = (40 + Math.random() * 20) + '%';
-                el.style.width = '10px'; el.style.height = '12px'; el.style.background = ['#ffd1a3', '#ffb86b', '#ff7a9e', '#ffd9e3'][Math.floor(Math.random() * 4)]; el.style.zIndex = 95;
-                el.style.transform = `rotate(${Math.random() * 360}deg)`; el.style.borderRadius = '2px'; el.style.opacity = '1'; el.style.transition = 'transform 2s linear, top 2s linear, opacity 2s linear';
+
+            // emit confetti
+            for (let i = 0; i < 120; i++) {
+                const el = document.createElement('div');
+                el.style.position = 'fixed';
+                el.style.left = (50 + (Math.random() - 0.5) * 40) + '%';
+                el.style.top = (40 + Math.random() * 20) + '%';
+                el.style.width = '10px';
+                el.style.height = '12px';
+                el.style.background = ['#ffd1a3', '#ffb86b', '#ff7a9e', '#ffd9e3'][Math.floor(Math.random() * 4)];
+                el.style.zIndex = 95;
+                el.style.transform = `rotate(${Math.random() * 360}deg)`;
+                el.style.borderRadius = '2px';
+                el.style.opacity = '1';
+                el.style.transition = 'transform 2s ease-out, top 2s ease-out, opacity 2s ease-out';
                 document.body.appendChild(el);
-                setTimeout(() => { el.style.top = (75 + Math.random() * 12) + '%'; el.style.opacity = '0'; el.style.transform += ' translateY(40px) rotate(720deg)'; }, 50 + Math.random() * 200);
-                setTimeout(() => el.remove(), 2200 + Math.random() * 600);
+                setTimeout(() => {
+                    el.style.top = (75 + Math.random() * 12) + '%';
+                    el.style.opacity = '0';
+                    el.style.transform += ' translateY(40px) rotate(720deg)';
+                }, 50 + Math.random() * 200);
+                setTimeout(() => el.remove(), 2500);
             }
-            // small fireworks via window intermittently (kept simple to avoid heavy CPU)
-            setTimeout(() => { reveal(); }, 1400);
+
+            // animate present out before showing app
+            present.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
+            present.style.transform = 'scale(1.2) translateY(-50px)';
+            present.style.opacity = '0';
+
+            setTimeout(() => {
+                startStage.style.display = 'none';
+                appMain.style.display = 'flex';
+            }, 1200); // give present & confetti time to animate
         });
 
         // simple helper to escape HTML
@@ -495,8 +518,8 @@
 
         // autoplay audio if available
         // leave src empty - you can place your audio path here or drop a file and set path
-        // Example: bgAudio.src = 'audio/happy-birthday.mp3';
-        // bgAudio.play().catch(()=>{});
+        bgAudio.src = 'birthdaysong.mp3';
+        bgAudio.play().catch(()=>{});
     </script>
 </body>
 </html>
