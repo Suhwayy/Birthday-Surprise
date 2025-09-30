@@ -52,6 +52,8 @@
             perspective: 1000px;
             cursor: pointer;
             transform-style: preserve-3d;
+            pointer-events: auto;
+            z-index: 100;
         }
 
             .present .box {
@@ -477,41 +479,43 @@
         // Instead of the simple reveal above, reuse existing present animation behavior
         // For brevity: clicking present will open, emit confetti and then show app
         present.addEventListener('click', () => {
+            // open lid
             present.classList.add('opened');
 
-            // emit confetti
-            for (let i = 0; i < 120; i++) {
-                const el = document.createElement('div');
-                el.style.position = 'fixed';
-                el.style.left = (50 + (Math.random() - 0.5) * 40) + '%';
-                el.style.top = (40 + Math.random() * 20) + '%';
-                el.style.width = '10px';
-                el.style.height = '12px';
-                el.style.background = ['#ffd1a3', '#ffb86b', '#ff7a9e', '#ffd9e3'][Math.floor(Math.random() * 4)];
-                el.style.zIndex = 95;
-                el.style.transform = `rotate(${Math.random() * 360}deg)`;
-                el.style.borderRadius = '2px';
-                el.style.opacity = '1';
-                el.style.transition = 'transform 2s ease-out, top 2s ease-out, opacity 2s ease-out';
-                document.body.appendChild(el);
+            // simple confetti
+            for (let i = 0; i < 80; i++) {
+                const conf = document.createElement('div');
+                conf.style.cssText = `
+            position: fixed;
+            left: ${50 + (Math.random() - 0.5) * 40}%;
+            top: ${40 + Math.random() * 20}%;
+            width: 10px; height: 12px;
+            background: ${['#ffd1a3', '#ffb86b', '#ff7a9e', '#ffd9e3'][Math.floor(Math.random() * 4)]};
+            border-radius: 2px;
+            z-index: 1000;
+            transition: transform 2s ease, top 2s ease, opacity 2s ease;
+        `;
+                document.body.appendChild(conf);
                 setTimeout(() => {
-                    el.style.top = (75 + Math.random() * 12) + '%';
-                    el.style.opacity = '0';
-                    el.style.transform += ' translateY(40px) rotate(720deg)';
+                    conf.style.top = `${75 + Math.random() * 12}%`;
+                    conf.style.opacity = '0';
+                    conf.style.transform += ' translateY(40px) rotate(720deg)';
                 }, 50 + Math.random() * 200);
-                setTimeout(() => el.remove(), 2500);
+                setTimeout(() => conf.remove(), 2500);
             }
 
-            // animate present out before showing app
+            // animate present
             present.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
             present.style.transform = 'scale(1.2) translateY(-50px)';
             present.style.opacity = '0';
 
+            // reveal app
             setTimeout(() => {
                 startStage.style.display = 'none';
                 appMain.style.display = 'flex';
-            }, 1200); // give present & confetti time to animate
+            }, 1200);
         });
+
 
         // simple helper to escape HTML
         function escapeHtml(str) { return String(str).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[s])); }
