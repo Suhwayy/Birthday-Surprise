@@ -1,0 +1,408 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Birthday Surprise</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #0b1220;
+            --accent: #ffb86b;
+            --soft: #e6eef8;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial
+        }
+
+        body {
+            background: linear-gradient(180deg,#071029 0%,var(--bg) 60%);
+            color: var(--soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh
+        }
+
+        /* Center stage */
+        .stage {
+            position: relative;
+            display: grid;
+            place-items: center;
+            gap: 20px;
+            padding: 40px
+        }
+
+        .hint {
+            font-size: 1.05rem;
+            letter-spacing: 0.02em;
+            opacity: 0.95
+        }
+
+        /* Present */
+        .present {
+            width: 220px;
+            height: 220px;
+            position: relative;
+            perspective: 1000px;
+            cursor: pointer
+        }
+
+            .present .box {
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(180deg,#d95c7e,#b23a61);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 12px 40px rgba(8,10,20,0.6);
+                transform-origin: center bottom;
+                transition: transform .9s cubic-bezier(.2,.9,.2,1)
+            }
+
+            .present .ribbon-vertical {
+                position: absolute;
+                left: calc(50% - 20px);
+                top: 0;
+                width: 40px;
+                height: 100%;
+                background: linear-gradient(180deg,#ffd1a3,#ffb86b);
+                border-radius: 8px
+            }
+
+            .present .ribbon-horizontal {
+                position: absolute;
+                top: calc(50% - 20px);
+                left: 0;
+                height: 40px;
+                width: 100%;
+                background: linear-gradient(90deg,#ffd1a3,#ffb86b);
+                border-radius: 8px
+            }
+
+        /* Lid */
+        .lid {
+            position: absolute;
+            top: -24px;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            background: linear-gradient(180deg,#ff7a9e,#d94b6f);
+            border-radius: 12px;
+            transform-origin: center right;
+            box-shadow: 0 8px 20px rgba(0,0,0,.5);
+            transition: transform .9s cubic-bezier(.2,.9,.2,1)
+        }
+
+            .lid::after {
+                content: '';
+                position: absolute;
+                right: 12px;
+                top: 6px;
+                width: 18px;
+                height: 18px;
+                background: #fff3;
+                border-radius: 50%;
+                opacity: .06
+            }
+
+        /* Open state */
+        .present.opened .lid {
+            transform: rotateX(75deg) translateY(-14px) translateZ(12px)
+        }
+
+        .present.opened .box {
+            transform: translateY(20px) scale(0.98)
+        }
+
+        /* Surprise card */
+        .surprise {
+            position: fixed;
+            left: 50%;
+            top: 40%;
+            transform: translate(-50%,-50%);
+            width: min(900px,94%);
+            max-width: 1100px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            backdrop-filter: blur(6px);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 20px 60px rgba(2,6,23,0.7);
+            display: none;
+            z-index: 40
+        }
+
+            .surprise.show {
+                display: block
+            }
+
+        .surprise-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px
+        }
+
+        .title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent)
+        }
+
+        /* Slideshow area */
+        .slideshow {
+            display: flex;
+            gap: 18px;
+            align-items: center
+        }
+
+        .photo-card {
+            background: #071029;
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 420px;
+            max-width: 620px;
+            display: flex;
+            flex-direction: column;
+            align-items: center
+        }
+
+        .photo {
+            width: 100%;
+            height: 360px;
+            border-radius: 10px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02)
+        }
+
+        .controls {
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--soft);
+            cursor: pointer
+        }
+
+        /* Music control area */
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+            .audio-controls .song-title {
+                font-size: 0.95rem
+            }
+
+        /* Reviews tiles */
+        .tiles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+            gap: 12px;
+            margin-top: 16px
+        }
+
+        .tile {
+            background: linear-gradient(180deg,#071a2b22,#051021);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.03)
+        }
+
+            .tile .who {
+                font-weight: 700;
+                color: var(--accent);
+                margin-bottom: 6px
+            }
+
+        /* Small screens tweak */
+        @media (max-width:760px) {
+            .photo {
+                height: 220px
+            }
+
+            .photo-card {
+                min-width: 260px
+            }
+
+            .stage {
+                padding: 20px
+            }
+
+            .surprise {
+                top: 50%
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stage">
+        <div class="hint">Click the present to open 🎉</div>
+
+        <div class="present" id="present" role="button" tabindex="0" aria-pressed="false" aria-label="Open present">
+            <div class="lid"></div>
+            <div class="ribbon-vertical"></div>
+            <div class="ribbon-horizontal"></div>
+            <div class="box"></div>
+        </div>
+
+        <div style="text-align:center;max-width:720px;opacity:.9">
+            <p style="margin:0.2rem 0;color:rgba(230,238,248,0.9)">Surprise them with this tiny interactive birthday page. When you click the present it opens — then enjoy the slideshow, music and family messages.</p>
+        </div>
+    </div>
+
+    <!-- Surprise panel -->
+    <aside class="surprise" id="surprise" aria-hidden="true">
+        <div class="surprise-header">
+            <div>
+                <div class="title">Happy Birthday!</div>
+                <div style="font-size:0.95rem;opacity:0.85">Made with ❤️ — click through the pictures and enjoy the tune</div>
+            </div>
+            <div class="audio-controls">
+                <div class="song-title" id="songTitle">Happy Birthday - Instrumental</div>
+                <button class="btn" id="toggleAudio">Play</button>
+            </div>
+        </div>
+
+        <div style="height:18px"></div>
+
+        <div class="slideshow">
+            <div class="photo-card">
+                <div class="photo" id="photo" style="background-image:url('https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=1200&q=80')" role="img" aria-label="Birthday photo"></div>
+                <div class="controls">
+                    <button class="btn" id="prev">◀ Prev</button>
+                    <button class="btn" id="next">Next ▶</button>
+                    <div style="flex:1"></div>
+                    <div style="font-size:0.95rem;opacity:0.9" id="counter">1 / 4</div>
+                </div>
+            </div>
+
+            <div style="flex:1;min-width:220px">
+                <div style="font-size:1.05rem;font-weight:600;margin-bottom:8px">A little card</div>
+                <div style="background:linear-gradient(180deg,#051923,#092936);padding:12px;border-radius:10px;min-height:120px">
+                    <h3 style="margin:0 0 8px 0;color:var(--accent)">Surprise!</h3>
+                    <p style="margin:0 0 8px 0;opacity:0.95" id="cardMessage">Wishing you an amazing day full of cake and laughter — love, the fam 🎂</p>
+                    <div style="margin-top:10px;font-size:0.9rem;opacity:0.9">Use the buttons to move through photos. Use the music controls to play or pause the song.</div>
+                </div>
+
+                <div class="tiles" style="margin-top:12px" id="reviews">
+                    <div class="tile"><div class="who">Mom</div><div>Happy birthday sweetheart! So proud of you 🎈</div></div>
+                    <div class="tile"><div class="who">Dad</div><div>Hope your day is full of joy — love you!</div></div>
+                    <div class="tile"><div class="who">Aunt Sara</div><div>Many happy returns — cake is on me!</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden audio element: You can replace the src with your own hosted MP3. -->
+        <audio id="bgAudio" loop src="https://cdn.simple-music-samples.com/happy-birthday-instrumental.mp3"></audio>
+    </aside>
+
+    <script>// --- Configuration: replace these with your own image URLs and audio file in your repo ---
+    const images = [
+      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1528731708534-816fe59f90dc?auto=format&fit=crop&w=1200&q=80'
+    ];
+    const messages = [
+      "Wishing you the best birthday — can't wait to celebrate!",
+      "To the brightest star in our family — love you lots!",
+      "Here's to many more adventures together. Happy birthday!",
+      "May your cake be sweet and your day even sweeter."
+    ];
+    const audioSrc = document.getElementById('bgAudio').getAttribute('src');
+
+    // --- DOM refs ---
+    const present = document.getElementById('present');
+    const surprise = document.getElementById('surprise');
+    const photo = document.getElementById('photo');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const counter = document.getElementById('counter');
+    const cardMessage = document.getElementById('cardMessage');
+    const toggleAudio = document.getElementById('toggleAudio');
+    const audio = document.getElementById('bgAudio');
+    const songTitle = document.getElementById('songTitle');
+
+    let idx = 0;
+    let opened = false;
+
+    function updatePhoto(){
+      photo.style.backgroundImage = `url('${images[idx]}')`;
+      counter.textContent = `${idx+1} / ${images.length}`;
+      cardMessage.textContent = messages[idx] || 'Happy birthday!';
+    }
+
+    prevBtn.addEventListener('click', ()=>{ idx = (idx - 1 + images.length) % images.length; updatePhoto(); });
+    nextBtn.addEventListener('click', ()=>{ idx = (idx + 1) % images.length; updatePhoto(); });
+
+    // toggle audio play/pause
+    toggleAudio.addEventListener('click', () => {
+      if(audio.paused){ audio.play(); toggleAudio.textContent = 'Pause'; }
+      else{ audio.pause(); toggleAudio.textContent = 'Play'; }
+    });
+
+    // present click => open animation then reveal surprise
+    function openPresent(){
+      if(opened) return;
+      opened = true;
+      present.classList.add('opened');
+      present.setAttribute('aria-pressed','true');
+
+      // small confetti effect (CSS-free) using JS-created elements
+      for(let i=0;i<14;i++){
+        const p = document.createElement('div');
+        p.style.position='fixed';
+        p.style.left = (50 + (Math.random()-0.5)*18)+'%';
+        p.style.top = (45 + Math.random()*10)+'%';
+        p.style.width='10px'; p.style.height='14px';
+        p.style.background = ['#ffd1a3','#ffb86b','#ff7a9e','#ffd9e3'][Math.floor(Math.random()*4)];
+        p.style.opacity='0.95';
+        p.style.transform = `rotate(${Math.random()*360}deg)`;
+        p.style.borderRadius='2px';
+        p.style.zIndex=60;
+        p.style.transition='transform 1.2s ease-out, top 1.2s ease-out, opacity 1.2s linear';
+        document.body.appendChild(p);
+        // animate
+        setTimeout(()=>{ p.style.top = (35 + Math.random()*6)+'%'; p.style.transform += ' translateY(-30px) rotate(480deg)'; p.style.opacity='0'; }, 50+Math.random()*50);
+        // remove
+        setTimeout(()=>p.remove(),1500+Math.random()*700);
+      }
+
+      // reveal surprise after short delay
+      setTimeout(()=>{
+        surprise.classList.add('show');
+        surprise.setAttribute('aria-hidden','false');
+        updatePhoto();
+        // start music automatically if allowed by browser — many browsers block autoplay with sound
+        // so we just set button label appropriately
+        if(!audio.paused){ toggleAudio.textContent='Pause'; } else { toggleAudio.textContent='Play'; }
+      },550);
+    }
+
+    present.addEventListener('click', openPresent);
+    present.addEventListener('keydown', (ev)=>{ if(ev.key === 'Enter' || ev.key === ' ') openPresent(); });
+
+    // Accessibility: stop music when user navigates away
+    window.addEventListener('blur', ()=>{ if(!audio.paused){ audio.pause(); toggleAudio.textContent='Play'; } });
+
+    // Safety: if audio fails to load, hide controls gracefully
+    audio.addEventListener('error', ()=>{ toggleAudio.style.display='none'; songTitle.textContent='(audio not available)'; });
+
+    // init
+    updatePhoto();</script>
+</body>
+</html>
